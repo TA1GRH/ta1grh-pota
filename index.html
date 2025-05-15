@@ -48,7 +48,8 @@
       .then(response => response.json())
       .then(data => {
         const tbody = document.querySelector('#spotsTable tbody');
-        data.spots.slice(0, 10).forEach(spot => {
+        // ↓↓↓ SADECE SON 3 SPOT ↓↓↓
+        data.spots.slice(0, 3).forEach(spot => {
           const row = document.createElement('tr');
           row.innerHTML = `
             <td>${new Date(spot.time).toISOString().slice(0, 19).replace('T', ' ')}</td>
