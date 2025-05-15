@@ -2,13 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>TA1GRH POTA Spots</title>
+  <title>TA1GRH - Latest POTA Spots</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      font-size: 14px;
-      margin: 10px;
       background-color: #f9f9f9;
+      margin: 10px;
     }
     h2 {
       text-align: center;
@@ -29,7 +28,7 @@
   </style>
 </head>
 <body>
-  <h2>TA1GRH - Latest POTA Spots</h2>
+  <h2>TA1GRH - Latest 3 POTA Spots</h2>
   <table id="spotsTable">
     <thead>
       <tr>
@@ -37,6 +36,7 @@
         <th>Frequency</th>
         <th>Mode</th>
         <th>Park</th>
+        <th>Park Name</th>
         <th>Comment</th>
       </tr>
     </thead>
@@ -44,27 +44,44 @@
   </table>
 
   <script>
-    fetch('https://api.pota.app/spot/activator/TA1GRH')
-      .then(response => response.json())
-      .then(data => {
-        const tbody = document.querySelector('#spotsTable tbody');
-        // ↓↓↓ SADECE SON 3 SPOT ↓↓↓
-        data.spots.slice(0, 3).forEach(spot => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${new Date(spot.time).toISOString().slice(0, 19).replace('T', ' ')}</td>
-            <td>${spot.frequency}</td>
-            <td>${spot.mode}</td>
-            <td>${spot.park}</td>
-            <td>${spot.comment || ''}</td>
-          `;
-          tbody.appendChild(row);
-        });
-      })
-      .catch(err => {
-        document.body.innerHTML += `<p>Error loading data.</p>`;
-        console.error('Failed to fetch POTA spot data', err);
+    // Park bilgilerini önceden çekip cache'leyelim
+    let parkLookup = {};
+
+    async function fetchParkList() {
+      const res = await fetch("https://api.pota.app/park");
+      const data = await res.json();
+      data.parks.forEach(park => {
+        parkLookup[park.reference] = park.name;
       });
+    }
+
+    async function fetchSpots() {
+      await fetchParkList();
+      const res = await fetch("https://api.pota.app/spot/activator/TA1GRH");
+      const data = await res.json();
+      const tbody = document.querySelector('#spotsTable tbody');
+      tbody.innerHTML = '';
+
+      data.spots.slice(0, 3).forEach(spot => {
+        const timeUTC = new Date(spot.time).toISOString().slice(0, 19).replace('T', ' ');
+        const parkName = parkLookup[spot.park] || 'N/A';
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${timeUTC}</td>
+          <td>${spot.frequency}</td>
+          <td>${spot.mode}</td>
+          <td>${spot.park}</td>
+          <td>${parkName}</td>
+          <td>${spot.comment || ''}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    fetchSpots().catch(err => {
+      document.body.innerHTML += "<p>Error loading spot data.</p>";
+      console.error(err);
+    });
   </script>
 </body>
 </html>
