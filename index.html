@@ -2,37 +2,67 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>POTA Activations by TA1GRH</title>
+  <title>TA1GRH POTA Spots</title>
   <style>
-    body { font-family: sans-serif; font-size: 14px; background: white; color: #333; }
-    ul { padding-left: 20px; }
-    li { margin: 4px 0; }
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      margin: 10px;
+      background-color: #f9f9f9;
+    }
+    h2 {
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 6px 8px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background-color: #eee;
+    }
   </style>
 </head>
 <body>
-  <h3>POTA Activations by TA1GRH</h3>
-  <ul id="park-list">Loading...</ul>
+  <h2>TA1GRH - Latest POTA Spots</h2>
+  <table id="spotsTable">
+    <thead>
+      <tr>
+        <th>Time (UTC)</th>
+        <th>Frequency</th>
+        <th>Mode</th>
+        <th>Park</th>
+        <th>Comment</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <script>
-    const call = "TA1GRH";
-    const url = `https://api.pota.app/spot/activator/${call}`;
-
-    fetch(url)
+    fetch('https://api.pota.app/spot/activator/TA1GRH')
       .then(response => response.json())
       .then(data => {
-        const parks = new Set(data.spots.map(spot => `${spot.park.name} (${spot.park.reference})`));
-        const list = document.getElementById("park-list");
-        list.innerHTML = "";
-
-        [...parks].sort().forEach(park => {
-          const li = document.createElement("li");
-          li.textContent = park;
-          list.appendChild(li);
+        const tbody = document.querySelector('#spotsTable tbody');
+        data.spots.slice(0, 10).forEach(spot => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${new Date(spot.time).toISOString().slice(0, 19).replace('T', ' ')}</td>
+            <td>${spot.frequency}</td>
+            <td>${spot.mode}</td>
+            <td>${spot.park}</td>
+            <td>${spot.comment || ''}</td>
+          `;
+          tbody.appendChild(row);
         });
       })
-      .catch(error => {
-        document.getElementById("park-list").textContent = "Could not load data.";
-        console.error("POTA data error:", error);
+      .catch(err => {
+        document.body.innerHTML += `<p>Error loading data.</p>`;
+        console.error('Failed to fetch POTA spot data', err);
       });
   </script>
 </body>
