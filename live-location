@@ -1,0 +1,15 @@
+<!-- ta1grh_live_location.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Live APRS Map - TA1GRH</title>
+    <meta charset="UTF-8">
+    <style>
+      html, body { margin: 0; padding: 0; height: 100%; }
+      iframe { width: 100%; height: 100%; border: none; }
+    </style>
+  </head>
+  <body>
+    <iframe src="https://aprs.fi/TA1GRH-9" allowfullscreen></iframe>
+  </body>
+</html>
